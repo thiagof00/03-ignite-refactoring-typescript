@@ -3,19 +3,40 @@ import {
   useRef,
   useState,
   useCallback,
+  ElementType,
+  InputHTMLAttributes,
 } from 'react';
 
-import { useField } from '@unform/core';
+import { FormHandles, useField } from '@unform/core';
 
 import { Container } from './styles';
 
-const Input = ({ name, icon: Icon, ...rest }) => {
-  const inputRef = useRef(null);
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+name:string;
+Icon?: ElementType
+}
+interface RefProps{
+  image: string;
+  description: string;
+  name:string;
+  price: string;
+
+}
+const Input = ({ name, Icon, ...rest }:InputProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
   const { fieldName, defaultValue, registerField } = useField(name);
+
+  useEffect(() => {
+    registerField({
+      name: fieldName,
+      ref: inputRef.current,
+      path: 'value',
+    });
+  }, [fieldName, registerField]);
 
   const handleInputFocus = useCallback(() => {
     setIsFocused(true);
@@ -27,13 +48,6 @@ const Input = ({ name, icon: Icon, ...rest }) => {
     setIsFilled(!!inputRef.current?.value);
   }, []);
 
-  useEffect(() => {
-    registerField({
-      name: fieldName,
-      ref: inputRef.current,
-      path: 'value',
-    });
-  }, [fieldName, registerField]);
 
   return (
     <Container isFilled={isFilled} isFocused={isFocused}>
